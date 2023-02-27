@@ -23,19 +23,19 @@
 -- pip freeze
 -- NOTE: use pip3 for MAC
 
-5. Jinja2
+5. Requirements.txt
+-- pip freeze > requirements.txt
+-- Just a text file that includes all of the packages needed for the specific project
+
+6. Jinja2
 -- templating language for python
 -- for loops, if-else statements
 -- routing to different pages
 -- template inheritance (extends, include)
 
-5. Requirements.txt
--- pip freeze > requirements.txt
--- Just a text file that includes all of the packages needed for the specific project
-
-6. Create templates folder & import render_template
+7. Create templates folder & import render_template
 -- flask render_template looks for a folder named "templates" in order to render html documents.
 
-7. .gitignore
+8. .gitignore
 -- Ignores files/folders to push up to github
 (my_venv, __pycache__)
