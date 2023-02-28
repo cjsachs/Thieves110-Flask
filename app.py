@@ -3,15 +3,37 @@ import requests
 
 app = Flask(__name__)
 
+registered_users = {
+    'christiana@thieves.com': {
+        'name': 'Christian',
+        'password': 'test123'
+    },
+    'dylank@thieves.com': {
+        'name': 'Dylan',
+        'password': 'ilovemydog'
+    }
+}
+
 @app.route('/', methods=['GET'])
 def home():
     return render_template('home.html')
-    # return '<h1>This is the Thieves-110 Home Page.</h1>'
 
 @app.route('/students', methods=['GET'])
 def students():
     my_students = ['Student 1', 'Student 2', 'Student 3']
     return render_template('students.html', my_students=my_students)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email').lower()
+        password = request.form.get('password')
+        if email in registered_users and password == registered_users.get(email).get('password'):
+            return f"Login Successful! Welcome {registered_users.get(email).get('name')}"
+        else:
+            error = 'Incorrect Email/Password'
+            return render_template('login.html', error=error)
+    return render_template('login.html')
 
 @app.route('/ergast', methods=['GET', 'POST'])
 def ergast():
