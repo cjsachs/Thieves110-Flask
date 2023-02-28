@@ -19,8 +19,8 @@ class Config():
     }
 
 class LoginForm(FlaskForm):
-    email = EmailField('Email', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    email = EmailField('Email:', validators=[DataRequired()])
+    password = PasswordField('Password:', validators=[DataRequired()])
     submit_btn = SubmitField('Login')
 
 app = Flask(__name__)
@@ -39,9 +39,9 @@ def students():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    if request.method == 'POST':
-        email = request.form.get('email').lower()
-        password = request.form.get('password')
+    if request.method == 'POST' and form.validate_on_submit():
+        email = form.email.data.lower()
+        password = form.password.data
         if email in app.config.get('REGISTERED_USERS') and password == app.config.get('REGISTERED_USERS').get(email).get('password'):
             return f"Login Successful! Welcome {app.config.get('REGISTERED_USERS').get(email).get('name')}"
         else:
