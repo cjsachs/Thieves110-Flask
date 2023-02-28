@@ -1,18 +1,31 @@
 from flask import Flask, render_template, request
 import requests
+import os
+from flask_wtf import FlaskForm
+from wtforms import EmailField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
+
+class Config():
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    REGISTERED_USERS = {
+        'christiana@thieves.com': {
+            'name': 'Christian',
+            'password': 'test123'
+        },
+        'dylank@thieves.com': {
+            'name': 'Dylan',
+            'password': 'ilovemydog'
+        }
+    }
+
+class LoginForm(FlaskForm):
+    email = EmailField('Email', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit_btn = SubmitField('Login')
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
-registered_users = {
-    'christiana@thieves.com': {
-        'name': 'Christian',
-        'password': 'test123'
-    },
-    'dylank@thieves.com': {
-        'name': 'Dylan',
-        'password': 'ilovemydog'
-    }
-}
 
 @app.route('/', methods=['GET'])
 def home():
@@ -25,15 +38,16 @@ def students():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    form = LoginForm()
     if request.method == 'POST':
         email = request.form.get('email').lower()
         password = request.form.get('password')
-        if email in registered_users and password == registered_users.get(email).get('password'):
-            return f"Login Successful! Welcome {registered_users.get(email).get('name')}"
+        if email in app.config.get('REGISTERED_USERS') and password == app.config.get('REGISTERED_USERS').get(email).get('password'):
+            return f"Login Successful! Welcome {app.config.get('REGISTERED_USERS').get(email).get('name')}"
         else:
             error = 'Incorrect Email/Password'
-            return render_template('login.html', error=error)
-    return render_template('login.html')
+            return render_template('login.html', error=error, form=form)
+    return render_template('login.html', form=form)
 
 @app.route('/ergast', methods=['GET', 'POST'])
 def ergast():
