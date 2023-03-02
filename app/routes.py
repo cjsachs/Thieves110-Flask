@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import render_template, request, flash
 import requests
 from app.forms import LoginForm
 from app import app
@@ -23,6 +23,7 @@ def login():
             return f"Login Successful! Welcome {app.config.get('REGISTERED_USERS').get(email).get('name')}"
         else:
             error = 'Incorrect Email/Password'
+            flash(f'{error}', 'danger')
             return render_template('login.html', error=error, form=form)
     return render_template('login.html', form=form)
 
