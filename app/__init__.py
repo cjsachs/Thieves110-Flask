@@ -21,4 +21,4 @@ login.login_message = 'You must log in to access this page.'
 login.login_message_category = 'warning'
 
 
-from app import routes
+from app import routes, models
