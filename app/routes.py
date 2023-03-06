@@ -1,6 +1,6 @@
 from flask import render_template, request, flash, redirect, url_for
 import requests
-from app.forms import LoginForm, RegisterForm
+from app.forms import LoginForm, RegisterForm, EditProfileForm
 from app import app
 from app.models import User
 from werkzeug.security import check_password_hash
@@ -78,6 +78,34 @@ def register():
         flash('You have successfully registered!', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if request.method == 'POST' and form.validate_on_submit():
+
+        new_user_data = {
+            'first_name': form.first_name.data.title(),
+            'last_name': form.last_name.data.title(),
+            'email': form.email.data.lower()
+        }
+
+        # query current user from db to change
+        queried_user = User.query.filter_by(email=new_user_data['email']).first()
+
+        # check if queried_user already exists
+        if queried_user:
+            flash('Email is already in use.', 'danger')
+            return redirect(url_for('edit_profile'))
+        else:
+           # add changes to db
+           current_user.from_dict(new_user_data)
+           current_user.save_to_db()
+           flash('Profile Updated!', 'success')
+           return redirect(url_for('home'))
+
+    return render_template('edit_profile.html', form=form)
 
 
 
