@@ -6,7 +6,7 @@ Edit Profile
 
 {% block content %}
 <h1>Edit Profile Page</h1>
-<form action="{{url_for('edit_profile')}}" method="POST">
+<form action="{{url_for('auth.edit_profile')}}" method="POST">
     {{form.hidden_tag()}}
     <div class="form-group">
         {{form.first_name.label()}}

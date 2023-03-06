@@ -1,28 +1,12 @@
 from flask import render_template, request, flash, redirect, url_for
-import requests
-from app.forms import LoginForm, RegisterForm, EditProfileForm
-from app import app
+from app.blueprints.auth.forms import LoginForm, RegisterForm, EditProfileForm
+from . import auth
 from app.models import User
 from werkzeug.security import check_password_hash
 from flask_login import login_user, logout_user, current_user, login_required
 
 # ROUTES SECTION
-@app.route('/', methods=['GET'])
-@login_required
-def home():
-    return render_template('home.html')
-
-
-
-@app.route('/students', methods=['GET'])
-@login_required
-def students():
-    my_students = ['Student 1', 'Student 2', 'Student 3']
-    return render_template('students.html', my_students=my_students)
-
-
-
-@app.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -34,7 +18,7 @@ def login():
         if queried_user and check_password_hash(queried_user.password, password):
             login_user(queried_user)
             flash(f'Successfully Logged In! Welcome back, {queried_user.first_name}!', 'success')            
-            return redirect(url_for('home'))
+            return redirect(url_for('main.home'))
         else:
             error = 'Incorrect Email/Password!'
             flash(f'{error}', 'danger')
@@ -43,17 +27,17 @@ def login():
 
 
 
-@app.route('/logout', methods=['GET'])
+@auth.route('/logout', methods=['GET'])
 @login_required
 def logout():
     if current_user:
         logout_user()
         flash('You have logged out!', 'warning')
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
 
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -76,10 +60,10 @@ def register():
         new_user.save_to_db()
 
         flash('You have successfully registered!', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 
-@app.route('/edit_profile', methods=['GET', 'POST'])
+@auth.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     form = EditProfileForm()
@@ -97,42 +81,12 @@ def edit_profile():
         # check if queried_user already exists
         if queried_user:
             flash('Email is already in use.', 'danger')
-            return redirect(url_for('edit_profile'))
+            return redirect(url_for('auth.edit_profile'))
         else:
            # add changes to db
            current_user.from_dict(new_user_data)
            current_user.save_to_db()
            flash('Profile Updated!', 'success')
-           return redirect(url_for('home'))
+           return redirect(url_for('main.home'))
 
     return render_template('edit_profile.html', form=form)
-
-
-
-@app.route('/ergast', methods=['GET', 'POST'])
-@login_required
-def ergast():
-    print(request.method)
-    if request.method == 'POST':
-        year = request.form.get('year')
-        rnd = request.form.get('rnd')
-        print(year, rnd)
-        url = f'http://ergast.com/api/f1/{year}/{rnd}/driverStandings.json'
-        response = requests.get(url)
-        if response.ok:
-            standings_data = response.json()['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
-            new_driver_data = []
-            for driver in standings_data:
-                driver_dict = {
-                    'first_name': driver['Driver']['givenName'],
-                    'last_name': driver['Driver']['familyName'],
-                    'DOB': driver['Driver']['dateOfBirth'],
-                    'wins': driver['wins'],
-                    'team': driver['Constructors'][0]['name']
-                }
-                new_driver_data.append(driver_dict)
-            return render_template('ergast.html', new_driver_data=new_driver_data)
-        else:
-            error = 'That year or round does not exist.'    
-            return render_template('ergast.html', error=error)
-    return render_template('ergast.html')
