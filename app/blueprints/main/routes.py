@@ -1,32 +1,27 @@
 from flask import render_template, request
 import requests
-from app.forms import LoginForm
-from app import app
+from . import main
+from flask_login import login_required
 
 # ROUTES SECTION
-@app.route('/', methods=['GET'])
+@main.route('/', methods=['GET'])
+@login_required
 def home():
     return render_template('home.html')
 
-@app.route('/students', methods=['GET'])
+
+
+@main.route('/students', methods=['GET'])
+@login_required
 def students():
     my_students = ['Student 1', 'Student 2', 'Student 3']
     return render_template('students.html', my_students=my_students)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        email = form.email.data.lower()
-        password = form.password.data
-        if email in app.config.get('REGISTERED_USERS') and password == app.config.get('REGISTERED_USERS').get(email).get('password'):
-            return f"Login Successful! Welcome {app.config.get('REGISTERED_USERS').get(email).get('name')}"
-        else:
-            error = 'Incorrect Email/Password'
-            return render_template('login.html', error=error, form=form)
-    return render_template('login.html', form=form)
 
-@app.route('/ergast', methods=['GET', 'POST'])
+
+
+@main.route('/ergast', methods=['GET', 'POST'])
+@login_required
 def ergast():
     print(request.method)
     if request.method == 'POST':
