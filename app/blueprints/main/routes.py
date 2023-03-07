@@ -2,12 +2,15 @@ from flask import render_template, request
 import requests
 from . import main
 from flask_login import login_required
+from ...models import User
 
 # ROUTES SECTION
 @main.route('/', methods=['GET'])
 @login_required
 def home():
-    return render_template('home.html')
+    users = User.query.all()
+    print(users)
+    return render_template('home.html', users=users)
 
 
 

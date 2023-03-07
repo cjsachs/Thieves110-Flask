@@ -6,4 +6,17 @@
 
 {% block content %}
     <h1>Thieves-110 home page!</h1>
+    {% if users%}
+    {% for user in users %}
+    {% if user != current_user %}
+    <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="{{url_for('static', filename='../static/images/thievesbglogo.png')}}" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">{{ user.first_name }}</h5>
+          <a href="#" class="btn btn-primary">Follow</a>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
 {% endblock %}
