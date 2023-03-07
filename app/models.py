@@ -3,6 +3,11 @@ from flask_login import UserMixin # Only use UserMixin for the User Model
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+)
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String, nullable=False)
@@ -10,6 +15,14 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String)
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    followed = db.relationship('User',
+        secondary = followers,
+        primaryjoin = (followers.columns.follower_id == id),                     
+        secondaryjoin = (followers.columns.followed_id == id),
+        backref = db.backref('followers', lazy='dynamic'),
+        lazy = 'dynamic'                       
+    )
 
     # hashes our password
     def hash_password(self, original_password):
@@ -34,3 +47,29 @@ class User(UserMixin, db.Model):
 @login.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    img_url = db.Column(db.String, nullable=False)
+    title = db.Column(db.String)
+    caption = db.Column(db.String)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    # Foreign Key to User Table
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    # Use this method to register our post attributes
+    def from_dict(self, data):
+        self.img_url = data['img_url']
+        self.title = data['title']
+        self.caption = data['caption']
+        self.user_id = data['user_id']
+
+    # Save the post to database
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    # Delete the post from database
+    def delete_post(self):
+        db.session.delete(self)
+        db.session.commit()
