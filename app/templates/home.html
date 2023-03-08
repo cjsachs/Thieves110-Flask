@@ -13,7 +13,11 @@
         <img class="card-img-top" src="{{url_for('static', filename='../static/images/thievesbglogo.png')}}" alt="Card image cap">
         <div class="card-body">
           <h5 class="card-title">{{ user.first_name }}</h5>
-          <a href="#" class="btn btn-primary">Follow</a>
+          {% if user.isFollowing %}
+            <a href="{{url_for('posts.unfollow', user_id=user.id)}}" class="btn btn-danger">Unfollow</a>
+          {% else %}
+            <a href="{{url_for('posts.follow', user_id=user.id)}}" class="btn btn-primary">Follow</a>
+          {% endif %}  
         </div>
     </div>
     {% endif %}

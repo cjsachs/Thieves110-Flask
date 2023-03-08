@@ -79,13 +79,13 @@ def edit_profile():
         queried_user = User.query.filter_by(email=new_user_data['email']).first()
 
         # check if queried_user already exists
-        if queried_user:
+        if queried_user and current_user.email != queried_user.email:
             flash('Email is already in use.', 'danger')
             return redirect(url_for('auth.edit_profile'))
         else:
            # add changes to db
-           current_user.from_dict(new_user_data)
-           current_user.save_to_db()
+           current_user.update_user(new_user_data)
+           current_user.update_to_db()
            flash('Profile Updated!', 'success')
            return redirect(url_for('main.home'))
 
