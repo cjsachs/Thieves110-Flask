@@ -8,14 +8,14 @@ Feed
     <h1>Thieves-110 Feed Page!</h1>
     {% if posts %}
     {% for post in posts %}
-    <div class="card" style="width: 25rem;">
+    <a class="card text-decoration-none mb-3" style="width: 25rem;" href="{{url_for('posts.view_single_post', post_id=post.id)}}">
         <img class="card-img-top" src="{{post.img_url}}" alt="Card image cap">
         <div class="card-body">
-          <h5 class="card-title">{{ post.title }}</h5>
-          <p class="card-text">{{post.caption}}</p>
-          <small class="card-subtitle text-muted">{{moment(post.date_created).fromNow()}}</small>
+          <h5 class="card-title text-dark">{{ post.title }}</h5>
+          <p class="card-text text-dark">{{post.caption}}</p>
+          <small class="card-subtitle text-muted">{{post.author.first_name}} - {{moment(post.date_created).fromNow()}}</small>
         </div>
-    </div>
+    </a>
     {% endfor %}
     {% endif %}
 {% endblock %}

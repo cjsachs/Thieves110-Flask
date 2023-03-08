@@ -39,9 +39,29 @@ class User(UserMixin, db.Model):
         self.email = data['email']
         self.password = self.hash_password(data['password'])
     
+    # Update user attributes
+    def update_user(self, data):
+        self.first_name = data['first_name']
+        self.last_name = data['last_name']
+        self.email = data['email']
+    
     # Save the user to database
     def save_to_db(self):
         db.session.add(self)
+        db.session.commit()
+
+    # Update the user to database
+    def update_to_db(self):
+        db.session.commit()
+
+    # follow user
+    def follow_user(self, user):
+        self.followed.append(user)
+        db.session.commit()
+    
+    # unfollow user
+    def unfollow_user(self, user):
+        self.followed.remove(user)
         db.session.commit()
 
 @login.user_loader
@@ -68,7 +88,11 @@ class Post(db.Model):
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
-
+    
+    # Update the post to databse
+    def update_to_db(self):
+        db.session.commit()
+        
     # Delete the post from database
     def delete_post(self):
         db.session.delete(self)

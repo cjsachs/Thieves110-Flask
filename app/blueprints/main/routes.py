@@ -1,7 +1,7 @@
 from flask import render_template, request
 import requests
 from . import main
-from flask_login import login_required
+from flask_login import login_required, current_user
 from ...models import User
 
 # ROUTES SECTION
@@ -9,7 +9,16 @@ from ...models import User
 @login_required
 def home():
     users = User.query.all()
-    print(users)
+
+    following_set = set()
+
+    for user in current_user.followed:
+        following_set.add(user)
+
+    for user in users:
+        if user in following_set:
+            user.isFollowing = True
+    
     return render_template('home.html', users=users)
 
 
