@@ -1,11 +1,14 @@
 from flask import request
 from . import api
 from ...models import Post, User
+from flask_login import current_user
 
-# GET api routes
+# CRUD - Create, Read, Update, Delete
+
+# GET (Read) api routes
 
 # view all posts in a JSON format
-@api.route('/view_posts', methods=['GET'])
+@api.get('/view_posts')
 def view_posts_api():
     posts = Post.query.all()
     posts_json = []
@@ -26,7 +29,7 @@ def view_posts_api():
 
 
 # view a single post in JSON format
-@api.route('/<int:post_id>', methods=['GET'])
+@api.get('/<int:post_id>')
 def view_single_post_api(post_id):
     post = Post.query.get(post_id)
     if post:
@@ -47,11 +50,12 @@ def view_single_post_api(post_id):
             'message': 'post does not exist!'
         }
     
-# POST api route
 
-@api.route('/create', methods=['POST'])
+
+# POST (Create) api route
+@api.post('/create')
 def create_post_api():
-    data = request.json # this is coming from POST request body
+    data = request.get_json() # this is coming from POST request body
     
     # check if the user exists
     user = User.query.get(data["user_id"])
@@ -81,4 +85,73 @@ def create_post_api():
         return {
             'status': 'not ok',
             'message': 'That user does not exist.'
+        }
+
+
+
+# PUT (Update) api route
+@api.put('/update/<int:post_id>')
+def update_post_api(post_id):
+    data = request.get_json()
+
+    # Query the post and user objects
+    post = Post.query.get(post_id)
+    user = User.query.get(data["user_id"])
+
+    if user and post:
+        # check if the user is the owner of the post
+        if user.id == post.user_id:
+            # unpack our JSON data
+            new_post_data = {
+                'img_url': data["img_url"],
+                'title': data["title"],
+                'caption': data["caption"],
+                'user_id': data["user_id"]
+            }
+
+            # updating values for our post object from new_post_data
+            post.from_dict(new_post_data)
+
+            # save post to db
+            post.update_to_db()
+
+            return {
+                'status': 'ok',
+                'message': 'Post was successfully updated.'
+            }
+        else:
+            return {
+                'status': 'not ok',
+                'message': '🐍 That user does not have permission to update another users post!'
+            }
+    else:
+        return {
+            'status': 'not ok',
+            'message': 'User or/and Post does not exist.'
+        }
+
+# DELETE a Post
+@api.delete('/delete/<int:post_id>/<int:user_id>')
+def delete_post(post_id, user_id):
+
+    # query the post and user objects
+    post = Post.query.get(post_id)
+    user = User.query.get(user_id)
+    
+    if post and user:
+        if user.id == post.user_id:
+            post.delete_post()
+            return {
+                'status': 'ok',
+                'message': 'Post deleted.'
+            }
+        else:
+            return {
+                'status': 'not ok',
+                'message': '🐍 That user does not have permission to delete another users post!'
+            }
+    else:
+        return {
+            'status': 'not ok',
+            'message': 'User or/and Post does not exist.'
         }
