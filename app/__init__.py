@@ -33,10 +33,12 @@ def create_app():
     from .blueprints.main import main
     from .blueprints.auth import auth
     from .blueprints .posts import posts
+    from .blueprints .api import api
 
     # Register Blueprints
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(posts)
+    app.register_blueprint(api)
 
     return app
