@@ -2,12 +2,12 @@ from app import db, login
 from flask_login import UserMixin # Only use UserMixin for the User Model
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+import secrets
 
 followers = db.Table('followers',
     db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String, nullable=False)
@@ -23,7 +23,29 @@ class User(UserMixin, db.Model):
         backref = db.backref('followers', lazy='dynamic'),
         lazy = 'dynamic'                       
     )
+    # token columns
+    token = db.Column(db.String, unique=True)
 
+    # methods for token
+    def get_token(self):
+        
+        # get user token
+        if self.token:
+            return self.token
+
+        # if the token doesn't exist
+        self.token = secrets.token_urlsafe(32)
+        
+        self.save_to_db()
+        return self.token
+    
+    @staticmethod
+    def check_token(token):
+        user = User.query.filter_by(token=token).first()
+        if not user:
+            return None
+        return user
+    
     # hashes our password
     def hash_password(self, original_password):
         return generate_password_hash(original_password)

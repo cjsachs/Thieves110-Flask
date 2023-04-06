@@ -1,3 +1,7 @@
 .ergast {
     color: crimson;
 }
+
+html {
+    background-image: url('../images/pikachu.jpg');
+}

@@ -1,14 +1,21 @@
-from flask import request
+from flask import request,  g
 from . import api
 from ...models import Post, User
-from flask_login import current_user
+from .auth import basic_auth, token_auth
+
+@api.get('/token')
+@basic_auth.login_required()
+def get_token():
+    token = g.current_user.get_token()
+    return {'token': token}
+
 
 # CRUD - Create, Read, Update, Delete
 
 # GET (Read) api routes
-
 # view all posts in a JSON format
 @api.get('/view_posts')
+@token_auth.login_required()
 def view_posts_api():
     posts = Post.query.all()
     posts_json = []
@@ -155,3 +162,5 @@ def delete_post(post_id, user_id):
             'status': 'not ok',
             'message': 'User or/and Post does not exist.'
         }
+    
+
