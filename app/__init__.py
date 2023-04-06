@@ -11,34 +11,31 @@ db = SQLAlchemy()
 migrate = Migrate()
 moment = Moment()
 
-def create_app():
-    # Init app
-    app = Flask(__name__)
+# Init app
+app = Flask(__name__)
 
-    # Link the config
-    app.config.from_object(Config)
+# Link the config
+app.config.from_object(Config)
 
-    # Register Packages
-    login.init_app(app)
-    db.init_app(app)
-    migrate.init_app(app, db)
-    moment.init_app(app)
+# Register Packages
+login.init_app(app)
+db.init_app(app)
+migrate.init_app(app, db)
+moment.init_app(app)
 
-    # Configure Login Settings
-    login.login_view = 'auth.login'
-    login.login_message = 'You must log in to access this page.'
-    login.login_message_category = 'warning'
+# Configure Login Settings
+login.login_view = 'auth.login'
+login.login_message = 'You must log in to access this page.'
+login.login_message_category = 'warning'
 
-    # Importing Blueprints
-    from .blueprints.main import main
-    from .blueprints.auth import auth
-    from .blueprints .posts import posts
-    from .blueprints .api import api
+# Importing Blueprints
+from .blueprints.main import main
+from .blueprints.auth import auth
+from .blueprints .posts import posts
+from .blueprints .api import api
 
-    # Register Blueprints
-    app.register_blueprint(main)
-    app.register_blueprint(auth)
-    app.register_blueprint(posts)
-    app.register_blueprint(api)
-
-    return app
+# Register Blueprints
+app.register_blueprint(main)
+app.register_blueprint(auth)
+app.register_blueprint(posts)
+app.register_blueprint(api)
