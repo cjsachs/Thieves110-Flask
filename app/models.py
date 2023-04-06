@@ -39,7 +39,7 @@ class User(UserMixin, db.Model):
         self.save_to_db()
         return self.token
     
-    @staticmethod
+    
     def check_token(token):
         user = User.query.filter_by(token=token).first()
         if not user:
