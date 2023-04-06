@@ -61,38 +61,31 @@ def view_single_post_api(post_id):
 
 # POST (Create) api route
 @api.post('/create')
+@token_auth.login_required()
 def create_post_api():
     data = request.get_json() # this is coming from POST request body
     
-    # check if the user exists
-    user = User.query.get(data["user_id"])
-    if user:
-        # unpack our JSON data
-        new_post_data = {
-            'img_url': data["img_url"],
-            'title': data["title"],
-            'caption': data["caption"],
-            'user_id': data["user_id"]
-        }
+    # unpack our JSON data
+    new_post_data = {
+        'img_url': data["img_url"],
+        'title': data["title"],
+        'caption': data["caption"],
+        'user_id': data["user_id"]
+    }
 
-        # create an instance of post
-        new_post = Post()
+    # create an instance of post
+    new_post = Post()
 
-        # implementing values from new_post_data to our instance
-        new_post.from_dict(new_post_data)
+    # implementing values from new_post_data to our instance
+    new_post.from_dict(new_post_data)
 
-        # save post to db
-        new_post.save_to_db()
+    # save post to db
+    new_post.save_to_db()
 
-        return {
-            'status': 'ok',
-            'message': 'Post was successfully created.'
-        }
-    else:
-        return {
-            'status': 'not ok',
-            'message': 'That user does not exist.'
-        }
+    return {
+        'status': 'ok',
+        'message': 'Post was successfully created.'
+    }
 
 
 
