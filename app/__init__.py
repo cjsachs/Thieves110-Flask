@@ -11,6 +11,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 moment = Moment()
 
+
 # Init app
 app = Flask(__name__)
 
